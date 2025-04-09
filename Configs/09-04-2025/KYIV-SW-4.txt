@@ -1,0 +1,184 @@
+Current configuration : 3098 bytes
+!
+version 15.1
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service compress-config
+!
+hostname KYIV-SW-4
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging discriminator EXCESS severity drops 6 msg-body drops EXCESSCOLL 
+logging buffered 50000
+logging console discriminator EXCESS
+enable secret 4 LcV6aBcc/53FoCJjXQMd7rBUDEpeevrK8V5jQVoJEhU
+!
+username admin secret 4 LcV6aBcc/53FoCJjXQMd7rBUDEpeevrK8V5jQVoJEhU
+aaa new-model
+!
+!         
+aaa authentication login default group radius local
+aaa authentication enable default group radius enable
+aaa authorization exec default group radius if-authenticated 
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone EET 2 0
+no ipv6 cef
+ipv6 multicast rpf use-bgp
+no ip icmp rate-limit unreachable
+!
+no ip domain-lookup
+ip domain-name kyiv-sw-4
+no ip cef
+!
+!
+!
+!
+!
+spanning-tree mode mst
+spanning-tree extend system-id
+!
+spanning-tree mst configuration
+ name BASE
+ revision 1
+ instance 1 vlan 10, 500, 800
+!
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+ip tcp synwait-time 5
+ip ssh logging events
+ip ssh version 2
+! 
+!
+!
+!
+!
+!
+!         
+!
+!
+interface Ethernet0/0
+ description >>ISP
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 500,800
+ switchport mode trunk
+ duplex auto
+ spanning-tree link-type point-to-point
+!
+interface Ethernet0/1
+ duplex auto
+!
+interface Ethernet0/2
+ duplex auto
+!
+interface Ethernet0/3
+ duplex auto
+!
+interface Ethernet1/0
+ description >>KYIV-SW-1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,500,800
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet1/1
+ description >>KYIV-SW-3
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,500,800
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet1/2
+ description >>KYIV-RT-1
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,500,800
+ switchport mode trunk
+ duplex auto
+!
+interface Ethernet1/3
+ duplex auto
+!
+interface Ethernet2/0
+ duplex auto
+!         
+interface Ethernet2/1
+ duplex auto
+!
+interface Ethernet2/2
+ duplex auto
+!
+interface Ethernet2/3
+ duplex auto
+!
+interface Ethernet3/0
+ description >>CL
+ switchport access vlan 10
+ switchport mode access
+ duplex auto
+!
+interface Ethernet3/1
+ description >>CL
+ switchport access vlan 10
+ switchport mode access
+ duplex auto
+!
+interface Ethernet3/2
+ duplex auto
+!
+interface Ethernet3/3
+ duplex auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan500
+ description MGMT
+ ip address 192.168.10.5 255.255.255.0
+ ip access-group BLOCK_MGMT in
+!
+!
+no ip http server
+!
+ip route 0.0.0.0 0.0.0.0 192.168.10.1
+!
+!
+ip access-list extended BLOCK_MGMT
+ deny   ip 10.0.0.0 0.255.255.255 any
+ permit ip any any
+!         
+!
+snmp-server community public RO
+snmp-server contact o.zon77788@gmail.com
+radius-server host 172.16.0.2 auth-port 1812 acct-port 1813 key 7 03105E1812062F4B1F5B4A
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ transport input ssh
+!
+ntp server 192.168.10.1
+end
